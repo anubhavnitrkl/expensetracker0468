@@ -297,7 +297,7 @@ table.cmp .sv{display:none}
       </div>
     </div>
   </div>
-  <div class="foot"><span id="acct"></span><button class="theme" id="signout" type="button" hidden>Sign out</button><span>firebase build 3</span><button class="theme" id="theme">Toggle theme</button></div>
+  <div class="foot"><span id="acct"></span><button class="theme" id="signout" type="button" hidden>Sign out</button><span>firebase build 4</span><button class="theme" id="theme">Toggle theme</button></div>
 </div>
 <script>
 function showErr(m){let b=document.getElementById('err');if(!b){b=document.createElement('div');b.id='err';b.className='note';b.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:9;color:#c2402e;border:1px solid #c2402e';document.body.appendChild(b)}b.textContent='Page error: '+m}
@@ -336,6 +336,7 @@ function bars(rows,total,color){
 
 /* ---------- render ---------- */
 const fd=d=>+d.slice(8)+" "+MN[+d.slice(5,7)-1].slice(0,3)+(d.slice(0,4)!==today().slice(0,4)?" "+d.slice(0,4):"");
+const az=a=>[...a].filter(Boolean).sort((x,y)=>(x==="Other")-(y==="Other")||x.localeCompare(y,"en",{sensitivity:"base",numeric:true}));
 const uniq=(a,b)=>[...new Set([...a,...b])];
 function txRow(x){return `<div class="tx"><span class="dot" style="--c:${catColor(x.cat)}">${esc((x.cat||"?").charAt(0).toUpperCase())}</span><div>${esc(x.note||x.cat)}${x.rid?' <span style="color:var(--acc)" title="Recurring">↻</span>':''}<small>${fd(x.date)} · ${esc(x.cat)} · ${esc(modeOf(x))}${mode==="cloud"&&x.by?" · "+(x.by===me?"You":"Partner"):""}</small></div><span class="amt">${inr(x.amount)}</span><button data-edit="${esc(x.id)}" aria-label="Edit expense">✎</button><button data-del="${esc(x.id)}" aria-label="Delete expense">×</button></div>`}
 function setOpts(id,vals,all){const el=$(id),keep=el.value;el.innerHTML='<option value="">'+all+'</option>'+vals.map(v=>`<option>${esc(v)}</option>`).join("");if(vals.includes(keep))el.value=keep}
@@ -365,7 +366,7 @@ function render(){
   $("pcat").innerHTML=bars(group(cur,"cat"),total,catColor);
   $("pmode").innerHTML=bars(group(cur.map(x=>({...x,mode:modeOf(x)})),"mode"),total,k=>{const i=cfg.modes.indexOf(k);return PAL[i<0?9:i%PAL.length]});
   renderCompare();
-  const catsAll=uniq(cfg.cats,exp.map(x=>x.cat)),modesAll=uniq(cfg.modes,exp.map(modeOf));
+  const catsAll=az(uniq(cfg.cats,exp.map(x=>x.cat))),modesAll=az(uniq(cfg.modes,exp.map(modeOf)));
   setOpts("sc",catsAll,"All categories");setOpts("sm",modesAll,"All payment modes");
   const fc=$("sc").value,fm=$("sm").value;
   const st=cur.filter(x=>(!fc||x.cat===fc)&&(!fm||modeOf(x)===fm)).sort((a,b)=>b.date.localeCompare(a.date));
@@ -380,8 +381,8 @@ function render(){
 }
 function fillSelects(){
   const keep={c:$("c").value,m:$("m").value};
-  $("c").innerHTML=cfg.cats.map(c=>`<option>${esc(c)}</option>`).join("");
-  $("m").innerHTML=cfg.modes.map(c=>`<option>${esc(c)}</option>`).join("");
+  $("c").innerHTML=az(cfg.cats).map(c=>`<option>${esc(c)}</option>`).join("");
+  $("m").innerHTML=az(cfg.modes).map(c=>`<option>${esc(c)}</option>`).join("");
   const kr={rcat:$("rcat").value,rmode:$("rmode").value};
   $("rcat").innerHTML=$("c").innerHTML;$("rmode").innerHTML=$("m").innerHTML;
   for(const k in kr)if(kr[k])$(k).value=kr[k];
