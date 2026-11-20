@@ -153,6 +153,47 @@ input[type=file]::file-selector-button{border:1px solid var(--acc);background:va
 .bmsg{font-size:13px;margin-top:10px;min-height:18px}
 .foot{flex-wrap:wrap}
 .bbtn{margin-left:8px;padding:5px 12px;vertical-align:middle}
+.xrow{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-bottom:10px}
+.xrow select{width:auto;min-width:0}
+.xrow .qgo{padding:8px 14px;align-self:stretch}
+.cmphead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card .cmphead h2{margin:0}
+.pills.sm{box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.pills.sm button{padding:6px 12px;font-size:13px}
+.cmpbars{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.cb{height:170px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;min-width:0}
+.cb i{display:block;flex:none;width:100%;max-width:58px;min-height:3px;border-radius:8px 8px 3px 3px;background:var(--acc);opacity:.3}
+.cb.cur i{opacity:1}
+.cb .v{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--mute)}
+.cb.cur .v{color:var(--ink)}
+.cb .ml{font-size:12px;color:var(--mute);white-space:nowrap}
+.cb.cur .ml{color:var(--ink);font-weight:700}
+.cmpwrap{overflow-x:auto;margin:0 -4px;padding:0 4px}
+table.cmp{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;min-width:540px}
+table.cmp th,table.cmp td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+table.cmp th:first-child,table.cmp td:first-child{text-align:left;white-space:normal;font-weight:500}
+table.cmp th{color:var(--mute);font-weight:600;font-size:12px}
+table.cmp .cur{background:var(--accT);font-weight:700}
+table.cmp tfoot td{font-weight:700;border-bottom:0;border-top:2px solid var(--line)}
+table.cmp .sv{display:none}
+@media(max-width:640px){table.cmp{min-width:0;font-size:12.5px}table.cmp th,table.cmp td{padding:8px 4px}table.cmp .fv{display:none}table.cmp .sv{display:inline}}
+.chg{font-weight:600}.chg.up{color:var(--bad)}.chg.down{color:var(--good)}
+#printArea{display:none}
+@media print{
+  html,body{background:#fff!important;color:#000!important}
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:block!important;color:#000;font:10.5pt/1.4 var(--fb)}
+  #printArea h1{font:700 18pt var(--fd);margin:0 0 4px}
+  #printArea .psub{margin:0;font-weight:600}
+  #printArea .pgen{margin:2px 0 14px;color:#555;font-size:9pt}
+  #printArea table{width:100%;border-collapse:collapse}
+  #printArea th,#printArea td{border-bottom:1px solid #ccc;padding:5px 6px;text-align:left;vertical-align:top}
+  #printArea th{border-bottom:1.5px solid #000;font-size:9pt}
+  #printArea .n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  #printArea tfoot td{font-weight:700;border-top:1.5px solid #000;border-bottom:0}
+  #printArea tr{break-inside:avoid}
+  @page{margin:14mm}
+}
 </style>
 </head>
 <body>
@@ -169,10 +210,6 @@ input[type=file]::file-selector-button{border:1px solid var(--acc);background:va
   <div id="banner"></div>
   <div id="tab-home" class="grid">
     <aside class="card">
-      <div class="quick">
-        <div class="qrow"><input id="q" placeholder="450 dinner by UPI" maxlength="120"><button class="qgo" id="qgo" type="button">Fill</button><button class="qgo" id="qclr" type="button" style="border-color:var(--line);color:var(--mute)">Clear</button></div>
-        <div class="qs" id="qs" aria-live="polite"></div>
-      </div>
       <h2 id="ftitle">Add expense</h2>
       <form id="f">
         <div class="row2">
@@ -221,11 +258,16 @@ input[type=file]::file-selector-button{border:1px solid var(--acc);background:va
         <section class="card"><h2>By category</h2><div id="pcat"></div></section>
         <section class="card"><h2>By payment mode</h2><div id="pmode"></div></section>
       </div>
+      <section class="card" style="margin-top:18px">
+        <div class="cmphead"><h2 id="cmptitle">Compared with the past 4 months</h2><div class="pills sm"><button data-cmp="cat" class="on" type="button">Category</button><button data-cmp="mode" type="button">Payment mode</button></div></div>
+        <div class="cmpbars" id="cmpbars"></div>
+        <div class="cmpwrap"><table class="cmp" id="cmptbl"></table></div>
+      </section>
     </div>
     <div id="sub-stmt" hidden>
       <section class="card">
         <div class="filters"><div><label for="sc">Category</label><select id="sc"></select></div><div><label for="sm">Payment mode</label><select id="sm"></select></div><div class="ssum" id="ssum"></div></div>
-        <div style="text-align:right;margin-bottom:6px"><button class="qgo" id="csv" type="button" style="padding:7px 12px">Export CSV</button></div><div id="slist"></div>
+        <div class="xrow"><select id="xfmt" aria-label="Export format"><option value="xlsx">Excel (.xlsx)</option><option value="csv">CSV (.csv)</option><option value="pdf">PDF</option></select><button class="qgo" id="xgo" type="button">Export</button></div><div id="slist"></div>
       </section>
     </div>
     <div id="sub-backup" hidden>
@@ -250,7 +292,7 @@ input[type=file]::file-selector-button{border:1px solid var(--acc);background:va
       </div>
     </div>
   </div>
-  <div class="foot"><span id="acct"></span><button class="theme" id="signout" type="button" hidden>Sign out</button><span>firebase build 1</span><button class="theme" id="theme">Toggle theme</button></div>
+  <div class="foot"><span id="acct"></span><button class="theme" id="signout" type="button" hidden>Sign out</button><span>firebase build 2</span><button class="theme" id="theme">Toggle theme</button></div>
 </div>
 <script>
 function showErr(m){let b=document.getElementById('err');if(!b){b=document.createElement('div');b.id='err';b.className='note';b.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:9;color:#c2402e;border:1px solid #c2402e';document.body.appendChild(b)}b.textContent='Page error: '+m}
@@ -317,6 +359,7 @@ function render(){
   $("axis").innerHTML=`<span>1</span><span>${Math.ceil(days/2)}</span><span>${days}</span>`;
   $("pcat").innerHTML=bars(group(cur,"cat"),total,catColor);
   $("pmode").innerHTML=bars(group(cur.map(x=>({...x,mode:modeOf(x)})),"mode"),total,k=>{const i=cfg.modes.indexOf(k);return PAL[i<0?9:i%PAL.length]});
+  renderCompare();
   const catsAll=uniq(cfg.cats,exp.map(x=>x.cat)),modesAll=uniq(cfg.modes,exp.map(modeOf));
   setOpts("sc",catsAll,"All categories");setOpts("sm",modesAll,"All payment modes");
   const fc=$("sc").value,fm=$("sm").value;
@@ -367,72 +410,6 @@ function addTo(inputId,arr){
 $("addcat").onclick=()=>addTo("newcat","cats");
 $("addmode").onclick=()=>addTo("newmode","modes");
 $("theme").onclick=()=>{const r=document.documentElement,dark=matchMedia("(prefers-color-scheme:dark)").matches;const cur=r.dataset.theme||(dark?"dark":"light");r.dataset.theme=cur==="dark"?"light":"dark"};
-/* ---------- voice / quick add (English + Hindi) ---------- */
-const KW={cat:{
-'Groceries':'grocery,groceries,vegetable,vegetables,veggies,sabzi,ration,milk,bigbasket,blinkit,zepto,सब्जी,किराना,राशन,दूध,फल,ब्लिंकिट',
-'Food & Dining':'dinner,lunch,breakfast,food,restaurant,cafe,coffee,tea,snacks,pizza,swiggy,zomato,खाना,नाश्ता,रेस्टोरेंट,रेस्तरां,चाय,कॉफी,स्विगी,जोमैटो,डिनर,लंच,पिज्जा',
-'Transport':'petrol,diesel,fuel,uber,ola,auto,cab,taxi,metro,bus,train,rickshaw,parking,toll,पेट्रोल,डीजल,ऑटो,टैक्सी,बस,ट्रेन,मेट्रो,रिक्शा,उबर,ओला,पार्किंग,टोल',
-'Shopping':'shopping,amazon,flipkart,myntra,clothes,shoes,mall,कपड़े,शॉपिंग,जूते,अमेजन,फ्लिपकार्ट',
-'Rent & Bills':'rent,electricity,bill,bills,recharge,wifi,internet,gas,water,emi,किराया,बिजली,बिल,रिचार्ज,वाईफाई,गैस,पानी',
-'Health':'medicine,medicines,doctor,hospital,pharmacy,medical,दवा,दवाई,दवाइयां,डॉक्टर,अस्पताल,मेडिकल',
-'Entertainment':'movie,movies,netflix,cinema,game,games,subscription,concert,फिल्म,सिनेमा,नेटफ्लिक्स,गेम',
-'Travel':'flight,hotel,trip,ticket,tickets,travel,vacation,यात्रा,टिकट,फ्लाइट,होटल,सफर,घूमना',
-'Education':'school,fees,fee,tuition,course,book,books,college,फीस,किताब,किताबें,स्कूल,कोचिंग,कॉलेज'},
-mode:{
-'UPI':'upi,gpay,google pay,phonepe,phone pe,bhim,यूपीआई,जीपे,फोनपे,भीम',
-'Credit Card':'credit card,credit,क्रेडिट कार्ड,क्रेडिट',
-'Debit Card':'debit card,debit,atm,डेबिट कार्ड,डेबिट,एटीएम',
-'Cash':'cash,कैश,नकद,नगद,केश',
-'Net Banking':'net banking,netbanking,internet banking,नेट बैंकिंग,नेटबैंकिंग',
-'Wallet':'wallet,paytm,वॉलेट,पेटीएम'}};
-const MON=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
-const MU={lakh:1e5,lac:1e5,'लाख':1e5,thousand:1e3,hazaar:1e3,hazar:1e3,'हजार':1e3,k:1e3,hundred:100,sau:100,'सौ':100};
-const nrm=s=>s.toLowerCase().normalize('NFD').replace(/\u093C/g,'').replace(/[०-९]/g,d=>'०१२३४५६७८९'.indexOf(d));
-const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-const setQ=s=>{$('qs').textContent=s};
-function has(t,k){k=nrm(k.trim());if(!k)return false;return /[a-z]/.test(k)?new RegExp('(^|[^a-z])'+k+'([^a-z]|$)').test(t):t.includes(k)}
-function pick(t,names,table){
-  let best='',bl=0;
-  names.forEach(n=>{const l=nrm(n);if(l.length>=3&&t.includes(l)&&l.length>bl){best=n;bl=l.length}});
-  if(best)return best;
-  for(const n of names){const ks=table[n];if(ks&&ks.split(',').some(k=>has(t,k)))return n}
-  return '';
-}
-function parseQuick(raw){
-  let t=nrm(raw).replace(/(\d),(?=\d)/g,'$1');
-  let off=0;
-  if(/day before yesterday|परसों|परसो/.test(t))off=-2;
-  else if(/yesterday|कल/.test(t))off=-1;
-  const dt=new Date();
-  const md=t.match(/(\d{1,2})\s*(?:st|nd|rd|th)?\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*/);
-  if(md){dt.setMonth(MON.indexOf(md[2]),+md[1]);t=t.replace(md[0],' ')}else dt.setDate(dt.getDate()+off);
-  let amt=null;
-  for(const m of t.matchAll(/(\d+(?:\.\d+)?)\s*(lakh|lac|लाख|thousand|hazaar|hazar|हजार|k(?![a-z])|hundred|sau|सौ)?/g)){
-    const v=parseFloat(m[1])*(m[2]?MU[m[2]]:1),e=m.index+m[0].length;
-    const after=t.slice(e,e+10),before=t.slice(Math.max(0,m.index-5),m.index);
-    if(/^\s*(rs|rupee|rupaye|rupay|रु|₹|inr)/.test(after)||/(₹|rs\.?|inr)\s*$/.test(before)){amt=v;break}
-    if(amt===null)amt=v;
-  }
-  if(!amt)return null;
-  return{amt,date:iso(dt),cat:pick(t,cfg.cats,KW.cat),mode:pick(t,cfg.modes,KW.mode),note:raw.trim().slice(0,80)};
-}
-function quick(s){
-  s=(s||$('q').value).trim();
-  if(!s){setQ('Type or say something first, like “spent 450 on dinner by UPI”.');return}
-  const r=parseQuick(s);
-  if(!r){setQ('I couldn’t find an amount. Include a number, like “450 rupees”.');return}
-  $('d').value=r.date;$('a').value=r.amt;$('n').value=r.note;
-  const miss=[],cat=r.cat||(cfg.cats.includes('Other')?'Other':'');
-  if(cat)$('c').value=cat;
-  if(!r.cat)miss.push('category');
-  if(r.mode)$('m').value=r.mode;else miss.push('payment mode');
-  setQ('Heard: '+inr(r.amt)+' · '+$('c').value+' · '+$('m').value+' · '+r.date+'. '+(miss.length?'Please check the '+miss.join(' and ')+', then tap Add expense.':'Check the details, then tap Add expense.'));
-  $('f').classList.add('hl');setTimeout(()=>$('f').classList.remove('hl'),1300);
-  $('f').scrollIntoView({behavior:'smooth',block:'center'});
-}
-function clearQ(){$('q').value='';$('a').value='';$('n').value='';$('d').value=today();setQ('');$('q').focus()}
-$('qgo').onclick=()=>quick();$('qclr').onclick=clearQ;
-$('q').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();quick()}});
 document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");b.addEventListener("animationend",()=>b.classList.remove("pop"),{once:true})});
 /* ---------- edit, recurring, CSV ---------- */
 let editId=null,dl=null;
@@ -482,13 +459,58 @@ $("addrec").onclick=()=>{
   setR("Added “"+name+"”. First entry: "+mname(start)+", day "+day+".");
 };
 const csvCell=v=>{v=String(v==null?"":v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
-$("csv").onclick=async()=>{
-  const fc=$("sc").value,fm=$("sm").value;
-  const rows=exp.filter(x=>(x.date||"").slice(0,7)===month&&(!fc||x.cat===fc)&&(!fm||modeOf(x)===fm)).sort((a,b)=>a.date.localeCompare(b.date));
-  const csv="\ufeff"+[["Date","Amount","Category","Payment mode","Note"],...rows.map(x=>[x.date,x.amount,x.cat,modeOf(x),x.note||""])].map(r=>r.map(csvCell).join(",")).join("\r\n");
-  try{await saveFile("expenses-"+month+".csv",csv,"text/csv")}catch(e){if(!e||e.code!=="declined")showErr("Export failed: "+((e&&(e.code||e.message))||"error"))}
+/* ---------- statement export: Excel / CSV / PDF ---------- */
+function stmtRows(){const fc=$("sc").value,fm=$("sm").value;return{fc,fm,rows:exp.filter(x=>(x.date||"").slice(0,7)===month&&(!fc||x.cat===fc)&&(!fm||modeOf(x)===fm)).sort((a,b)=>a.date.localeCompare(b.date))}}
+const stmtSub=(fc,fm)=>mname(month)+" · "+(fc||"All categories")+" · "+(fm||"All payment modes");
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u){let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CRC[(c^u[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function zipStore(files,type){
+  const enc=new TextEncoder(),parts=[],cd=[];let off=0;
+  for(const f of files){
+    const nm=enc.encode(f.name),d=enc.encode(f.text),crc=crc32(d);
+    const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(12,0x21,true);h.setUint32(14,crc,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nm.length,true);
+    parts.push(new Uint8Array(h.buffer),nm,d);
+    const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(14,0x21,true);c.setUint32(16,crc,true);c.setUint32(20,d.length,true);c.setUint32(24,d.length,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);
+    cd.push(new Uint8Array(c.buffer),nm);off+=30+nm.length+d.length;
+  }
+  const cs=cd.reduce((a,b)=>a+b.length,0),e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...cd,new Uint8Array(e.buffer)],{type});
+}
+function xlsxStatement(rows,sub){
+  const X=v=>String(v).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const S=(r,c,v,st)=>`<c r="${"ABCDE"[c]}${r}" t="inlineStr"${st?` s="${st}"`:""}><is><t xml:space="preserve">${X(v)}</t></is></c>`;
+  const N=(r,c,v,st)=>`<c r="${"ABCDE"[c]}${r}"${st?` s="${st}"`:""}><v>${v}</v></c>`;
+  const serial=d=>(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10))-Date.UTC(1899,11,30))/864e5;
+  let r=1,x=`<row r="1">${S(1,0,"Expense statement",1)}</row><row r="2">${S(2,0,sub)}</row>`;
+  r=4;x+=`<row r="4">${["Date","Category","Payment mode","Note","Amount (₹)"].map((h,i)=>S(4,i,h,1)).join("")}</row>`;
+  rows.forEach(e=>{r++;x+=`<row r="${r}">${N(r,0,serial(e.date),2)}${S(r,1,e.cat)}${S(r,2,modeOf(e))}${S(r,3,e.note||"")}${N(r,4,Number(e.amount),3)}</row>`});
+  r++;x+=`<row r="${r}">${S(r,3,"Total",1)}${N(r,4,Math.round(sum(rows)*100)/100,4)}</row>`;
+  const ns='xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"',rn='xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"',pr="http://schemas.openxmlformats.org/package/2006/relationships",od="http://schemas.openxmlformats.org/officeDocument/2006/relationships/";
+  return zipStore([
+    {name:"[Content_Types].xml",text:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'},
+    {name:"_rels/.rels",text:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${pr}"><Relationship Id="rId1" Type="${od}officeDocument" Target="xl/workbook.xml"/></Relationships>`},
+    {name:"xl/workbook.xml",text:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook ${ns} ${rn}><sheets><sheet name="Statement" sheetId="1" r:id="rId1"/></sheets></workbook>`},
+    {name:"xl/_rels/workbook.xml.rels",text:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${pr}"><Relationship Id="rId1" Type="${od}worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="${od}styles" Target="styles.xml"/></Relationships>`},
+    {name:"xl/styles.xml",text:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet ${ns}><numFmts count="2"><numFmt numFmtId="164" formatCode="dd-mmm-yyyy"/><numFmt numFmtId="165" formatCode="#,##0.00"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`},
+    {name:"xl/worksheets/sheet1.xml",text:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet ${ns}><cols><col min="1" max="1" width="14" customWidth="1"/><col min="2" max="3" width="20" customWidth="1"/><col min="4" max="4" width="38" customWidth="1"/><col min="5" max="5" width="14" customWidth="1"/></cols><sheetData>${x}</sheetData></worksheet>`}
+  ],"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+}
+function printStatement(rows,sub){
+  let el=$("printArea");if(!el){el=document.createElement("div");el.id="printArea";document.body.appendChild(el)}
+  el.innerHTML=`<h1>Expense statement</h1><p class="psub">${esc(sub)}</p><p class="pgen">Generated ${esc(new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"}))} · ${rows.length} transaction${rows.length===1?"":"s"}</p>
+  <table><thead><tr><th>Date</th><th>Category</th><th>Payment mode</th><th>Note</th><th class="n">Amount</th></tr></thead><tbody>${rows.map(e=>`<tr><td>${esc(fd(e.date))}</td><td>${esc(e.cat)}</td><td>${esc(modeOf(e))}</td><td>${esc(e.note||"")}</td><td class="n">${inr(e.amount)}</td></tr>`).join("")||'<tr><td colspan="5">No transactions.</td></tr>'}</tbody>
+  <tfoot><tr><td colspan="4">Total</td><td class="n">${inr(sum(rows))}</td></tr></tfoot></table>`;
+  window.print();
+}
+$("xgo").onclick=async()=>{
+  const {fc,fm,rows}=stmtRows(),sub=stmtSub(fc,fm),f=$("xfmt").value,base="expense-statement-"+month;
+  try{
+    if(f==="pdf"){printStatement(rows,sub);return}
+    if(f==="csv"){const csv="﻿"+[["Date","Amount","Category","Payment mode","Note"],...rows.map(x=>[x.date,x.amount,x.cat,modeOf(x),x.note||""])].map(r=>r.map(csvCell).join(",")).join("\r\n");await saveFile(base+".csv",csv,"text/csv");return}
+    await saveFile(base+".xlsx",xlsxStatement(rows,sub),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  }catch(e){if(!e||e.code!=="declined")showErr("Export failed: "+((e&&(e.code||e.message))||"error"))}
 };
-(async()=>{try{if(window.claude&&claude.use){dl=await claude.use("downloads");if(dl)$("csv").hidden=false}}catch(e){}})();
 /* ---------- backup & restore ---------- */
 const BK_CLOUD=false,BK_KEY="xp_lastbackup";
 const sigOf=x=>[x.date,Number(x.amount),x.cat,modeOf(x),x.note||""].join("|");
@@ -641,6 +663,24 @@ document.addEventListener("click",e=>{
   if(a.dataset.act==="signout")FBX.signOut();
 });
 $("signout").onclick=()=>{if(FBX)FBX.signOut()};
+/* ---------- compare with past 4 months ---------- */
+let cmpBy="cat";
+const kfmt=n=>n>=1e5?"₹"+(n/1e5).toFixed(n>=1e6?0:1).replace(/\.0$/,"")+"L":n>=1e3?"₹"+(n/1e3).toFixed(n>=1e4?0:1).replace(/\.0$/,"")+"k":"₹"+Math.round(n);
+function renderCompare(){
+  const ms=[-4,-3,-2,-1,0].map(d=>shift(month,d)),yr=month.slice(0,4);
+  const lab=k=>MN[+k.slice(5)-1].slice(0,3)+(ms.some(m=>m.slice(0,4)!==yr)?" ’"+k.slice(2,4):"");
+  const key=cmpBy==="cat"?x=>x.cat||"Other":x=>modeOf(x)||"Other";
+  const tot=ms.map(()=>0),rows={};
+  exp.forEach(x=>{const i=ms.indexOf((x.date||"").slice(0,7));if(i<0)return;const v=Number(x.amount)||0;tot[i]+=v;const k=key(x);(rows[k]=rows[k]||[0,0,0,0,0])[i]+=v});
+  const mx=Math.max(...tot,1);
+  $("cmpbars").innerHTML=ms.map((m,i)=>`<div class="cb${i===4?" cur":""}" title="${esc(mname(m))}: ${inr(tot[i])}"><span class="v">${tot[i]?kfmt(tot[i]):"–"}</span><i style="height:calc((100% - 52px) * ${(tot[i]/mx).toFixed(4)})"></i><span class="ml">${esc(lab(m))}</span></div>`).join("");
+  const chg=a=>{const avg=(a[0]+a[1]+a[2]+a[3])/4,c=a[4];if(!avg)return c?'<span class="chg up">new</span>':"–";const p=Math.round((c-avg)/avg*100);return p===0?"0%":`<span class="chg ${p>0?"up":"down"}">${p>0?"▲":"▼"} ${Math.abs(p)}%</span>`};
+  const list=Object.entries(rows).sort((a,b)=>b[1][4]-a[1][4]||sum2(b[1])-sum2(a[1]));
+  const cell=(v,i)=>`<td${i===4?' class="cur"':""}>${v?`<span class="fv">${inr(Math.round(v))}</span><span class="sv">${kfmt(v)}</span>`:"–"}</td>`;
+  $("cmptbl").innerHTML=list.length?`<thead><tr><th>${cmpBy==="cat"?"Category":"Payment mode"}</th>${ms.map((m,i)=>`<th${i===4?' class="cur"':""}>${esc(lab(m))}</th>`).join("")}<th>vs 4-mo avg</th></tr></thead><tbody>${list.map(([k,a])=>`<tr><td>${esc(k)}</td>${a.map(cell).join("")}<td>${chg(a)}</td></tr>`).join("")}</tbody><tfoot><tr><td>Total</td>${tot.map(cell).join("")}<td>${chg(tot)}</td></tr></tfoot>`:'<tbody><tr><td class="empty">No spending in these 5 months yet.</td></tr></tbody>';
+}
+const sum2=a=>a.reduce((s,v)=>s+v,0);
+document.addEventListener("click",e=>{const b=e.target.closest("[data-cmp]");if(!b)return;cmpBy=b.dataset.cmp;document.querySelectorAll("[data-cmp]").forEach(x=>x.classList.toggle("on",x===b));renderCompare()});
 let tab="home",sub="usage";
 function show(){
   $("tab-home").hidden=tab!=="home";$("tab-details").hidden=tab!=="details";
